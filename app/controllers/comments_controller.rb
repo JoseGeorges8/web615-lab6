@@ -8,6 +8,7 @@
 #  article_id :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  user_id    :integer
 #
 
 class CommentsController < ApplicationController
@@ -66,7 +67,12 @@ class CommentsController < ApplicationController
   # DELETE /comments/1
   # DELETE /comments/1.json
   def destroy
-    @comment.destroy
+    begin
+      @comment.destroy
+    rescue => e
+      p e
+      format.html { redirect_to comments_url, notice: 'An error ocurred when trying to destroy' }
+    end
     respond_to do |format|
       format.html { redirect_to comments_url, notice: 'Comment was successfully destroyed.' }
       format.json { head :no_content }
@@ -76,12 +82,17 @@ class CommentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_comment
+      begin
       @comment = Comment.find(params[:id])
+      rescue => e
+        p e
+        format.html { redirect_to comments_url, notice: 'An error ocurred' }
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def comment_params
-      params.require(:comment).permit(:message, :visible, :article_id)
+      params.require(:comment).permit(:message, :visible, :article_id, :user_id)
       # Students, make sure to add the user_id and article ID parameter as symbols here ^^^^^^
     end
 end

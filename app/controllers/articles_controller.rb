@@ -8,6 +8,7 @@
 #  category   :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  user_id    :integer
 #
 
 class ArticlesController < ApplicationController
@@ -66,8 +67,13 @@ class ArticlesController < ApplicationController
   # DELETE /articles/1
   # DELETE /articles/1.json
   def destroy
+    begin
     @article.destroy
-    respond_to do |format|
+    rescue => e
+      p e
+      format.html { redirect_to articles_url, notice: 'An error ocurred while trying to destroy' }
+    end
+      respond_to do |format|
       format.html { redirect_to articles_url, notice: 'Article was successfully destroyed.' }
       format.json { head :no_content }
     end
@@ -76,12 +82,18 @@ class ArticlesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_article
+      begin
       @article = Article.find(params[:id])
-    end
+      rescue => e
+        p e
+        format.html { redirect_to articles_url, notice: 'An error ocurred' }
+      end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def article_params
-      params.require(:article).permit(:title, :content, :category)
+      params.require(:article).permit(:title, :content, :category, :user_id)
       # Students, make sure to add the user_id parameter as a symbol here ^^^^^^
     end
+    end
+
 end
